@@ -14,12 +14,12 @@ defmodule Rumbl.Accounts do
     ]
   end
 
-  @spec get_user_by(String.t()) :: User.t() | nil
-  def get_user_by(id) do
+  @spec get_user(String.t()) :: User.t() | nil
+  def get_user(id) do
     Enum.find(list_users(), fn map -> map.id == id end)
   end
 
-  def get_user_by(params) do
+  def get_user(params) do
     Enum.find(list_users(), fn map ->
       Enum.all?(params, fn {key, val} -> Map.get(map, key) == val end)
     end)
