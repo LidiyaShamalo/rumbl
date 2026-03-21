@@ -1,6 +1,19 @@
 defmodule Rumbl.Accounts.User do
+  use Ecto.Schema
+  import Ecto.Changeset
 
-  @type t() :: {String.t(), String.t(), String.t()}
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          name: String.t() | nil,
+          username: String.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
 
-  defstruct [:id, :name, :username]
+  schema "users" do
+    field :name, :string
+    field :username, :string
+
+    timestamps()
+  end
 end

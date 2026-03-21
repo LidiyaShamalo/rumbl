@@ -2,27 +2,27 @@ defmodule Rumbl.Accounts do
   @moduledoc """
   The Accounts context.
   """
-
+  alias Rumbl.Repo
   alias Rumbl.Accounts.User
+
+  @spec get_user(integer()) :: User.t() | nil
+  def get_user(id) do
+    Repo.get(User, id)
+  end
+
+  @spec get_user!(integer()) :: User.t()
+  def get_user!(id) do
+    Repo.get!(User, id)
+  end
+
+  @spec get_user_by(list() | map()) :: User.t() | nil
+  def get_user_by(params) do
+    Repo.get_by(User, params)
+  end
 
   @spec list_users() :: [User.t()]
   def list_users do
-    [
-      %User{id: "1", name: "Jose", username: "josevalim"},
-      %User{id: "2", name: "Bruce", username: "redrapids"},
-      %User{id: "3", name: "Chris", username: "chrismccord"}
-    ]
-  end
-
-  @spec get_user(String.t()) :: User.t() | nil
-  def get_user(id) do
-    Enum.find(list_users(), fn map -> map.id == id end)
-  end
-
-  def get_user(params) do
-    Enum.find(list_users(), fn map ->
-      Enum.all?(params, fn {key, val} -> Map.get(map, key) == val end)
-    end)
+    Repo.all(User)
   end
 
 end
