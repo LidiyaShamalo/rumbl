@@ -5,9 +5,13 @@ defmodule RumblWeb.UserController do
 
   @spec index(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def index(conn, _params) do
-    users = Accounts.list_users()
-
-    render(conn, :index, users: users)
+    case authenticate(conn) do
+      %Plug.Conn{halted: true} = conn ->
+        conn
+      conn ->
+        users = Accounts.list_users()
+        render(conn, :index, users: users)
+    end
   end
 
   def show(conn, %{"id" => id}) do
@@ -30,6 +34,17 @@ defmodule RumblWeb.UserController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset)
+    end
+  end
+
+  defp authenticate(conn) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access that page")
+      |> redirect(to: ~p"/")
+      |> halt()
     end
   end
 end
