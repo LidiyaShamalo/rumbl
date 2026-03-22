@@ -1,11 +1,17 @@
 <h1>New User</h1>
 
 <.form :let={f} for={@changeset} action={~p"/users"}>
-  <div>
-    <.input field={f[:name]} type="text" placeholder="Name" />
+  
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <.input field={f[:name]} type="text" placeholder="Name" label="Name" />
+  <.input field={f[:username]} type="text" placeholder="Username" label="Username" />
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">Create User</button>
   </div>
-  <div>
-    <.input field={f[:username]} type="text" placeholder="Username" />
-  </div>
-  <button>Create User</button>
 </.form>

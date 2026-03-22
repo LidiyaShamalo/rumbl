@@ -22,10 +22,17 @@ defmodule RumblWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    {:ok, user} = Accounts.create_user(user_params)
+    case Accounts.create_user(user_params) do
+      {:ok, user} ->
 
-    conn
-    |> put_flash(:info, "#{user.name} created!")
-    |> redirect(to: ~p"/users")
+        conn
+        |> put_flash(:info, "#{user.name} created!")
+        |> redirect(to: ~p"/users")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+
+        changeset = Map.put(changeset, :action, :insert)
+        render(conn, :new, changeset: changeset)
+    end
   end
 end
