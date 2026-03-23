@@ -1,0 +1,20 @@
+<Layouts.app flash={@flash}>
+  <.header>
+    Video {@video.id}
+    <:subtitle>This is a video record from your database.</:subtitle>
+    <:actions>
+      <.button navigate={~p"/videos"}>
+        <.icon name="hero-arrow-left" />
+      </.button>
+      <.button variant="primary" navigate={~p"/videos/#{@video}/edit?return_to=show"}>
+        <.icon name="hero-pencil-square" /> Edit video
+      </.button>
+    </:actions>
+  </.header>
+
+  <.list>
+    <:item title="Url">{@video.url}</:item>
+    <:item title="Title">{@video.title}</:item>
+    <:item title="Description">{@video.description}</:item>
+  </.list>
+</Layouts.app>

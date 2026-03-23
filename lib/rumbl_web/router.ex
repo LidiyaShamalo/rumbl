@@ -1,4 +1,5 @@
 defmodule RumblWeb.Router do
+  alias RumblWeb.VideoController
   use RumblWeb, :router
 
   pipeline :browser do
@@ -21,6 +22,7 @@ defmodule RumblWeb.Router do
     get "/", PageController, :home
     resources "/users", UserController, only: [:index, :show, :new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/videos", VideoController
 
   end
 

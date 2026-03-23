@@ -34,7 +34,7 @@ defmodule RumblWeb.UserController do
     end
   end
 
-  #fun-plug
+    #fun-plug
   defp authenticate(conn, _opts) do
     if conn.assigns.current_user do
       conn
