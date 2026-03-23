@@ -7,8 +7,9 @@ defmodule RumblWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_rumbl_key",
-    signing_salt: "xapD51ND",
-    same_site: "Lax"
+    signing_salt: "xapD51ND",  # Это «соль» для шифрования.
+  # max_age: 60,  время жизни в секундах
+    same_site: "Lax" # настройка безопасности куки, которая защищает сайт от атак типа CSRF
   ]
 
   socket "/live", Phoenix.LiveView.Socket,

@@ -25,41 +25,43 @@ defmodule RumblWeb.Layouts do
       </Layouts.app>
 
   """
-  attr :flash, :map, required: true, doc: "the map of flash messages"
-
-  attr :current_scope, :map,
-    default: nil,
-    doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
-
-  slot :inner_block, required: true
 
   def app(assigns) do
+  ~H"""
+    <.app_layout current_user={@current_user} flash={@flash}>
+      {@inner_content}
+    </.app_layout>
+  """
+  end
+
+  attr :flash, :map, required: true, doc: "the map of flash messages"
+  attr :current_user, :any, default: nil
+  slot :inner_block, required: true
+
+  def app_layout(assigns) do
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
+      <section class="container flex justify-between items-center w-full">
+        <nav role="navigation">
+          <ul class="flex space-x-4 items-center">
+          <%= if @current_user do %>
+              <li class="font-bold"><%= @current_user.username %></li>
+              <li>
+                <.link href={~p"/sessions/#{@current_user.id}"} method="delete" class="text-red-500">
+                  Log out
+                </.link>
+              </li>
+            <% else %>
+              <li><.link href={~p"/users/new"}>Register</.link></li>
+              <li><.link href={~p"/sessions/new"}>Log in</.link></li>
+            <% end %>
+          </ul>
+        </nav>
+
+        <a href="https://phoenixframework.org" class="phx-logo">
+          <img src={~p"/images/logo.svg"} width="36" alt="Logo"/>
         </a>
-      </div>
-      <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
-          <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
-          </li>
-          <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
-          </li>
-          <li>
-            <.theme_toggle />
-          </li>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
-      </div>
+      </section>
     </header>
 
     <main class="px-4 py-20 sm:px-6 lg:px-8">
