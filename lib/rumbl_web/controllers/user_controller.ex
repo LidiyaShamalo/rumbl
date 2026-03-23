@@ -2,7 +2,7 @@ defmodule RumblWeb.UserController do
   use RumblWeb, :controller
 
   alias Rumbl.Accounts
-  plug :authenticate when action in [:index, :show]
+  plug :authenticate_user when action in [:index, :show]
 
   @spec index(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def index(conn, _params) do
@@ -34,15 +34,15 @@ defmodule RumblWeb.UserController do
     end
   end
 
-    #fun-plug
-  defp authenticate(conn, _opts) do
-    if conn.assigns.current_user do
-      conn
-    else
-      conn
-      |> put_flash(:error, "You must be logged in to access that page")
-      |> redirect(to: ~p"/")
-      |> halt()
-    end
-  end
+  #   #fun-plug
+  # defp authenticate(conn, _opts) do
+  #   if conn.assigns.current_user do
+  #     conn
+  #   else
+  #     conn
+  #     |> put_flash(:error, "You must be logged in to access that page")
+  #     |> redirect(to: ~p"/")
+  #     |> halt()
+  #   end
+  # end
 end
