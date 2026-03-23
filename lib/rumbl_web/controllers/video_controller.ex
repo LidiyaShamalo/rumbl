@@ -4,6 +4,7 @@ defmodule RumblWeb.VideoController do
   alias Rumbl.Multimedia
   alias Rumbl.Multimedia.Video
 
+
   def index(conn, _params) do
     videos = Multimedia.list_videos()
     render(conn, :index, videos: videos)
@@ -19,7 +20,7 @@ defmodule RumblWeb.VideoController do
       {:ok, video} ->
         conn
         |> put_flash(:info, "Video created successfully.")
-        |> redirect(to: ~p"/videos/#{video}")
+        |> redirect(to: ~p"/manage/videos/#{video}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new, changeset: changeset)
@@ -44,7 +45,7 @@ defmodule RumblWeb.VideoController do
       {:ok, video} ->
         conn
         |> put_flash(:info, "Video updated successfully.")
-        |> redirect(to: ~p"/videos/#{video}")
+        |> redirect(to: ~p"/manage/videos/#{video}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit, video: video, changeset: changeset)
@@ -57,6 +58,6 @@ defmodule RumblWeb.VideoController do
 
     conn
     |> put_flash(:info, "Video deleted successfully.")
-    |> redirect(to: ~p"/videos")
+    |> redirect(to: ~p"/manage/videos")
   end
 end

@@ -1,5 +1,4 @@
 defmodule RumblWeb.Router do
-  alias RumblWeb.VideoController
   use RumblWeb, :router
 
   pipeline :browser do
@@ -7,13 +6,20 @@ defmodule RumblWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {RumblWeb.Layouts, :root}
+    plug :put_layout, html: {RumblWeb.Layouts, :app}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug RumblWeb.Auth
+
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :ensure_auth do
+  # Здесь мы просто вызываем функцию проверки
+    plug :authenticate_user
   end
 
   scope "/", RumblWeb do
@@ -25,8 +31,8 @@ defmodule RumblWeb.Router do
   end
 
   scope "/manage", RumblWeb do
-    pipe_through [:browser, :authenticate_user]
-    
+    pipe_through [:browser, :ensure_auth]
+
     resources "/videos", VideoController
   end
 

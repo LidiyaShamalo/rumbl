@@ -27,10 +27,16 @@ defmodule RumblWeb.Layouts do
   """
 
   def app(assigns) do
+    assigns = Map.put_new(assigns, :current_user, nil)
+
   ~H"""
     <.app_layout current_user={@current_user} flash={@flash}>
-      {@inner_content}
-    </.app_layout>
+    <%= if assigns[:inner_block] do %>
+      <%= render_slot(@inner_block) %>
+    <% else %>
+      <%= @inner_content %>
+    <% end %>
+  </.app_layout>
   """
   end
 

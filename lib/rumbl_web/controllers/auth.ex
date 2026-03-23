@@ -10,12 +10,13 @@ defmodule RumblWeb.Auth do
   def call(conn, _opts) do
     user_id = get_session(conn, :user_id)
     user = user_id && Rumbl.Accounts.get_user(user_id)
+    IO.inspect(user, label: "USER FOUND IN AUTH PLUG")
     assign(conn, :current_user, user)
   end
 
       #fun-plug
   def authenticate_user(conn, _opts) do
-    if conn.assigns.current_user do
+    if conn.assigns[:current_user] do #.current_user do
       conn
     else
       conn
