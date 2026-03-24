@@ -1,11 +1,17 @@
-# Script for populating the database. You can run it as:
+# Скрипт для заполнения базы данных. Вы можете запустить его следующим образом:
 #
-#     mix run priv/repo/seeds.exs
+# mix run priv/repo/seeds.exs
 #
-# Inside the script, you can read and write to any of your
-# repositories directly:
+# Внутри скрипта вы можете читать и записывать данные в любой из ваших
+# репозиториев напрямую:
 #
-#     Rumbl.Repo.insert!(%Rumbl.SomeSchema{})
+# Rumbl.Repo.insert!(%Rumbl.SomeSchema{})
 #
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+# Мы рекомендуем использовать функции с восклицательным знаком (`insert!`, `update!`
+# и так далее), так как они завершатся с ошибкой, если что-то пойдет не так.
+
+alias Rumbl.Multimedia
+
+for category <- ~w(Action Drama Romance Comedy Sci-fi) do
+  Multimedia.create_category!(category)
+end

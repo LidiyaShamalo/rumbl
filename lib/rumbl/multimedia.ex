@@ -8,6 +8,7 @@ defmodule Rumbl.Multimedia do
   alias Rumbl.Accounts
 
   alias Rumbl.Multimedia.Video
+  alias Rumbl.Multimedia.Category
 
   @doc """
   Returns the list of videos.
@@ -72,6 +73,12 @@ defmodule Rumbl.Multimedia do
     |> Ecto.Changeset.put_assoc(:user, user)
     |>Repo.insert()
   end
+
+  def create_category!(name) do
+    Repo.insert!(%Category{name: name}, on_conflict: :nothing)
+  end
+
+
   @doc """
   Updates a video.
 
