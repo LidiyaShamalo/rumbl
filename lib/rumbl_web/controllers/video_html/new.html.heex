@@ -4,5 +4,10 @@
     <:subtitle>Use this form to manage video records in your database.</:subtitle>
   </.header>
 
-  <.video_form changeset={@changeset} action={~p"/manage/videos"} return_to={~p"/manage/videos"} />
+  <.video_form 
+    changeset={@changeset} 
+    action={~p"/manage/videos"} 
+    categories={@categories}
+    return_to={~p"/manage/videos"} 
+  />
 

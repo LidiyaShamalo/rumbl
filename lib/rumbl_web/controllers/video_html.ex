@@ -12,6 +12,11 @@ defmodule RumblWeb.VideoHTML do
   attr :changeset, Ecto.Changeset, required: true
   attr :action, :string, required: true
   attr :return_to, :string, default: nil
+  attr :categories, :list, required: true 
 
   def video_form(assigns)
+
+  def category_select_options(categories) do
+    for category <- categories, do: {category.name, category.id}
+  end
 end
