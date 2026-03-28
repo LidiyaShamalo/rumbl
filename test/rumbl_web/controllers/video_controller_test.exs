@@ -17,24 +17,6 @@ defmodule RumblWeb.VideoControllerTest do
 
   defp video_count, do: Enum.count(Multimedia.list_videos())
 
-  test "requires user authentication on all actions", %{conn: conn} do
-    actions = [
-      get(conn, ~p"/manage/videos/new"),                #new
-      get(conn, ~p"/manage/videos"),                    #index
-      get(conn, ~p"/manage/videos/123"),                #show
-      get(conn, ~p"/manage/videos/123/edit"),           #edit
-      put(conn, ~p"/manage/videos/123", video: %{}),    #update
-      post(conn, ~p"/manage/videos", video: %{}),       #create
-      delete(conn, ~p"/manage/videos/123")              #delete
-    ]
-
-    Enum.each(actions, fn conn ->
-
-    assert html_response(conn, 302)
-      assert conn.halted
-    end)
-  end
-
   describe "with a logged-in user" do
 
     setup %{conn: conn, login_as: username} do
@@ -57,7 +39,7 @@ defmodule RumblWeb.VideoControllerTest do
       assert String.contains?(conn.resp_body, user_video.title)
       refute String.contains?(conn.resp_body, other_video.title)
     end
-  end
+
 
   @tag login_as: "max"
   test "creates user  video and redirects", %{conn: conn, user: user} do
@@ -79,7 +61,46 @@ defmodule RumblWeb.VideoControllerTest do
       assert html_response(conn, 200) =~ "check the errors"
       assert video_count() == count_before
     end
-  
+  end
+
+    test "requires user authentication on all actions", %{conn: conn} do
+    actions = [
+      get(conn, ~p"/manage/videos/new"),                #new
+      get(conn, ~p"/manage/videos"),                    #index
+      get(conn, ~p"/manage/videos/123"),                #show
+      get(conn, ~p"/manage/videos/123/edit"),           #edit
+      put(conn, ~p"/manage/videos/123", video: %{}),    #update
+      post(conn, ~p"/manage/videos", video: %{}),       #create
+      delete(conn, ~p"/manage/videos/123")              #delete
+    ]
+
+    Enum.each(actions, fn conn ->
+
+    assert html_response(conn, 302)
+      assert conn.halted
+    end)
+  end
+
+  test "authorizes actions against access by other users", %{conn: conn} do
+    owner = user_fixture(username: "owner")
+    video = video_fixture(owner, @create_attrs)
+    non_owner = user_fixture(username: "sneaky")
+    conn = assign(conn, :current_user, non_owner)
+
+    assert_error_sent :not_found, fn ->
+      get(conn, ~p"/manage/videos/#{video}")
+    end
+    assert_error_sent :not_found, fn ->
+      get(conn, ~p"/manage/videos/#{video}/edit")
+    end
+    assert_error_sent :not_found, fn ->
+      put(conn, ~p"/manage/videos/#{video}", video: @create_attrs)
+    end
+    assert_error_sent :not_found, fn ->
+      delete(conn, ~p"/manage/videos/#{video}")
+    end
+  end
+
 
 
   # describe "index" do
