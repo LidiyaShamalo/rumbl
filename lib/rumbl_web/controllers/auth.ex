@@ -21,6 +21,7 @@ defmodule RumblWeb.Auth do
     end
   end
 
+
       #fun-plug
   def authenticate_user(conn, _opts) do
     if conn.assigns[:current_user] do #.current_user do

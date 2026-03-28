@@ -29,12 +29,24 @@ defmodule RumblWeb.ConnCase do
       import Phoenix.ConnTest
       import RumblWeb.ConnCase
       import Rumbl.TestHelpers
+      import Phoenix.Controller
 
     end
   end
 
   setup tags do
     Rumbl.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = Phoenix.ConnTest.build_conn()
+
+    conn =
+      conn
+
+      |> Map.put(:secret_key_base, RumblWeb.Endpoint.config(:secret_key_base))
+
+      # |> Plug.Session.call(Plug.Session.init(store: :cookie, key: "_test", signing_salt: "salt"))
+      |> Plug.Test.init_test_session(%{})
+      |> Phoenix.Controller.fetch_flash()
+
+    {:ok, conn: conn}
   end
 end
