@@ -1,21 +1,31 @@
 defmodule RumblWeb.VideoControllerTest do
   use RumblWeb.ConnCase, async: true
 
-  # import Rumbl.MultimediaFixtures
+  alias Rumbl.Multimedia
 
-  # @create_attrs %{description: "some description", title: "some title", url: "some url"}
+  @create_attrs %{
+    description: "some description",
+    title: "vid",
+    url: "http://youtu.be"
+  }
   # @update_attrs %{description: "some updated description", title: "some updated title", url: "some updated url"}
-  # @invalid_attrs %{description: nil, title: nil, url: nil}
+  @invalid_attrs %{
+    description: nil,
+    title: "invalid",
+    url: nil
+  }
+
+  defp video_count, do: Enum.count(Multimedia.list_videos())
 
   test "requires user authentication on all actions", %{conn: conn} do
     actions = [
-      get(conn, ~p"/manage/videos/new"),
-      get(conn, ~p"/manage/videos"),
-      get(conn, ~p"/manage/videos/123"),
-      get(conn, ~p"/manage/videos/123/edit"),
-      put(conn, ~p"/manage/videos/123", video: %{}),
-      post(conn, ~p"/manage/videos", video: %{}),
-      delete(conn, ~p"/manage/videos/123")
+      get(conn, ~p"/manage/videos/new"),                #new
+      get(conn, ~p"/manage/videos"),                    #index
+      get(conn, ~p"/manage/videos/123"),                #show
+      get(conn, ~p"/manage/videos/123/edit"),           #edit
+      put(conn, ~p"/manage/videos/123", video: %{}),    #update
+      post(conn, ~p"/manage/videos", video: %{}),       #create
+      delete(conn, ~p"/manage/videos/123")              #delete
     ]
 
     Enum.each(actions, fn conn ->
@@ -24,6 +34,53 @@ defmodule RumblWeb.VideoControllerTest do
       assert conn.halted
     end)
   end
+
+  describe "with a logged-in user" do
+
+    setup %{conn: conn, login_as: username} do
+      user = user_fixture(username: username)
+      conn = assign(conn, :current_user, user)
+
+      {:ok, conn: conn, user: user}
+    end
+
+    @tag login_as: "max"
+    test "lists all user's videos on index", %{conn: conn, user: user} do
+      user_video = video_fixture(user, title: "funny cats")
+      other_video = video_fixture(
+        user_fixture(username: "other"),
+        title: "another video"
+      )
+
+      conn = get conn, ~p"/manage/videos"
+      assert html_response(conn, 200) =~ ~r/Listing Videos/
+      assert String.contains?(conn.resp_body, user_video.title)
+      refute String.contains?(conn.resp_body, other_video.title)
+    end
+  end
+
+  @tag login_as: "max"
+  test "creates user  video and redirects", %{conn: conn, user: user} do
+      create_conn = post conn, ~p"/manage/videos", video: @create_attrs
+
+      assert %{id: id} = redirected_params(create_conn)
+      assert redirected_to(create_conn) == ~p"/manage/videos/#{id}"
+
+      conn = get conn, ~p"/manage/videos/#{id}"
+      assert html_response(conn, 200) =~ "Show Video"
+
+      assert Multimedia.get_video!(id).user_id == user.id
+    end
+
+    @tag login_as: "max"
+    test "does not create video and renders errors when invalid", %{conn: conn} do
+      count_before = video_count()
+      conn = post conn, ~p"/manage/videos", video: @invalid_attrs
+      assert html_response(conn, 200) =~ "check the errors"
+      assert video_count() == count_before
+    end
+  
+
 
   # describe "index" do
   #   test "lists all videos", %{conn: conn} do
