@@ -24,12 +24,47 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/rumbl"
 import topbar from "../vendor/topbar"
+import Player from "./player" 
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+// подключение хук
+const Hooks = {
+  VideoPlayer: {
+    mounted() {
+      const videoId = this.el.dataset.playerId
+
+      const innerDomId = "video-placeholder"
+
+      Player.init(innerDomId, videoId, (event) => {
+        console.log("Youtube Player is ready", event)
+      })
+
+      const submitBtn = document.getElementById("msg-submit")
+      const input = document.getElementById("msg-input")
+
+      submitBtn.addEventListener("click", () => {
+        const currentTime = Player.getCurrentTime()
+        const messageBody = input.value
+
+        this.pushEvent("new_annotation", {
+          body: messageBody,
+          at: currentTime
+        })
+        input.value = ""
+      })
+    },
+    destroyed(){
+      Player.destroy()
+    }
+  }
+}
+// хук
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: {...colocatedHooks, ...Hooks},
 })
 
 // Show progress bar on live navigation and form submits

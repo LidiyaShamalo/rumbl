@@ -1,31 +1,37 @@
-<div class="row">
-  <div class="column column-60">
-    <h1>{@video.title}</h1>
+<div class="flex flex-col md:flex-row gap-4">
+  <%!-- Левая колонка (60% на больших экранах) --%>
+  <div class="w-full md:w-3/5">
+    <h1 class="text-2xl font-bold mb-4">{@video.title}</h1>
 
     <div
-      id="video"
-      data-id={@video.id}
+      id="video-player-container"
+      phx-hook="VideoPlayer"
       data-player-id={player_id(@video)}
+      phx-update="ignore"
+      class="bg-black rounded-lg overflow-hidden min-h-[260px]" 
     >
+      <div id="video-placeholder" class="w-full h-full"></div>
     </div>
   </div>
 
-  <div class="column annotations">
-    <h3>Annotations</h3>
 
-    <div id="msg-container">
+  <div class="w-full md:flex-1 p-4 border-t md:border-t-0 md:border-l border-[#eaeaea]">
+    <h3 class="text-xl mb-2">Annotations</h3>
+
+    <div id="msg-container" class="h-64 overflow-y-auto mb-4 bg-base-200 p-2 rounded">
     </div>
 
-    <div>
+    <div class="flex flex-col gap-2">
       <textarea
         id="msg-input"
         rows="3"
         placeholder="Comment..."
+        class="textarea textarea-bordered"
       ></textarea>
 
       <button
         id="msg-submit"
-        class="button column"
+        class="btn btn-primary w-full"
         type="submit"
       >
         Post
