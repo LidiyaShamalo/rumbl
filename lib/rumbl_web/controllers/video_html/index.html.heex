@@ -8,19 +8,29 @@
     </:actions>
   </.header>
 
-  <.table id="videos" rows={@videos} row_click={&JS.navigate(~p"/manage/videos/#{&1}")}>
-    <:col :let={video} label="Url">{video.url}</:col>
+  <.table id="videos" rows={@videos}>
     <:col :let={video} label="Title">{video.title}</:col>
-    <:col :let={video} label="Description">{video.description}</:col>
+    
     <:action :let={video}>
-      <div class="sr-only">
-        <.link navigate={~p"/manage/videos/#{video}"}>Show</.link>
-      </div>
       <.link navigate={~p"/manage/videos/#{video}/edit"}>Edit</.link>
     </:action>
+
     <:action :let={video}>
-      <.link href={~p"/manage/videos/#{video}"} method="delete" data-confirm="Are you sure?">
+      <.link
+        href={~p"/manage/videos/#{video}"}
+        method="delete"
+        data-confirm="Are you sure?"
+      >
         Delete
       </.link>
+    </:action>
+
+    <:action :let={video}>
+      <.link 
+        navigate={~p"/watch/#{video}"}
+        class="button"
+        >
+          Watch
+        </.link>
     </:action>
   </.table>
