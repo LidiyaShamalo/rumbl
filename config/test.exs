@@ -40,4 +40,4 @@ config :phoenix_live_view,
 config :phoenix,
   sort_verified_routes_query_params: true
 
-  config :pbkdf2_elixir, :rounds, 1
+config :pbkdf2_elixir, :rounds, 1
