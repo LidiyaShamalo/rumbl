@@ -53,6 +53,11 @@ defmodule RumblWeb.Layouts do
           <%= if @current_user do %>
               <li class="font-bold"><%= @current_user.username %></li>
               <li>
+                <.link href={~p"/manage/videos"} class="text-red-500">
+                My Videos
+                </.link>
+              </li>
+              <li>
                 <.link href={~p"/sessions/#{@current_user.id}"} method="delete" class="text-red-500">
                   Log out
                 </.link>
