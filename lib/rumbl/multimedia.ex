@@ -9,6 +9,7 @@ defmodule Rumbl.Multimedia do
 
   alias Rumbl.Multimedia.Video
   alias Rumbl.Multimedia.Category
+  alias Rumbl.Multimedia.Annotation
 
   @doc """
   Returns the list of videos.
@@ -130,5 +131,14 @@ defmodule Rumbl.Multimedia do
     Category
     |> Category.alphabetical()
     |> Repo.all()
+  end
+
+  def annotate_video(user, video, attrs) do
+    %Annotation{}
+
+    |> Annotation.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Ecto.Changeset.put_assoc(:video, video)
+    |> Repo.insert()
   end
 end
