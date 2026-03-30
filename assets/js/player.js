@@ -21,8 +21,8 @@ let Player = {
   onIframeReady(domId, playerId, onReady){
     console.log("Создаю плеер для:", domId, "с видео-ID:", playerId);
     this.player = new YT.Player(domId, {
-      height: "360",
-      width: "420",
+      height: "100%",
+      width: "100%",
       videoId: playerId,
       events: {
         "onReady":  (event => onReady(event) ),
