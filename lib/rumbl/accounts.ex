@@ -3,7 +3,7 @@ defmodule Rumbl.Accounts do
   The Accounts context.
   """
   alias Rumbl.Repo
-  alias Rumbl.Accounts.User
+  alias Rumbl.Accounts.User 
 
   @spec get_user(integer()) :: User.t() | nil
   def get_user(id) do
