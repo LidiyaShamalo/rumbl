@@ -31,10 +31,16 @@ defmodule RumblWeb.WatchLive do
     IO.inspect(body, label: "Текст сообщения")
     IO.inspect(at, label: "Время в видео (мс)")
 
-    case Multimedia.annotate_video(socket.assigns.current_user, socket.assigns.video, %{body: body, at: at}) do
+    case Multimedia.annotate_video(socket.assigns.current_user, socket.assigns.video.id, %{body: body, at: at}) do
       {:ok, annotation} ->
         annotation = Rumbl.Repo.preload(annotation, :user)
-        RumblWeb.Endpoint.broadcast!(socket.assigns.topic, "new_annotation", annotation)
+        RumblWeb.Endpoint.broadcast!(socket.assigns.topic, "new_annotation", %{
+          id: annotation.id,
+          user: RumblWeb.UserJSON.show(%{user: socket.assigns.current_user}),
+          body: annotation.body,
+          at: annotation.at
+      })
+          # socket.assigns.topic, "new_annotation", annotation)
         {:noreply, socket}
 
       {:error, _changeset} ->

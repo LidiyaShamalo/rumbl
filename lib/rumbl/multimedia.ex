@@ -137,6 +137,8 @@ defmodule Rumbl.Multimedia do
     %Annotation{video_id: video_id, user_id: user_id}
 
     |> Annotation.changeset(attrs)
+    |> Ecto.Changeset.put_change(:user_id, user_id)
+    |> Ecto.Changeset.put_change(:video_id, video_id)
     |> Repo.insert()
   end
 
