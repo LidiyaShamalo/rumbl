@@ -29,8 +29,9 @@ defmodule RumblWeb.WatchLive do
       socket
       |> assign(:video, video)
       |> assign(:topic, topic)
-      |> assign(:messages, annotations)#[])
       |> assign(:current_user, current_user)
+      |> stream(:messages, annotations)
+
     }
   end
 
@@ -76,14 +77,14 @@ end
 
 def handle_info(%{event: "new_annotation", payload: msg}, socket) do
   IO.puts "ПОЛУЧЕНО НАПРЯМУЮ"
-  {:noreply, assign(socket, messages: [msg])}
+  {:noreply, stream_insert(socket, :messages, msg)}
 end
 
   def render(assigns) do
     ~H"""
       <WatchHTML.show
         video={@video}
-        messages={@messages}
+        messages={@streams.messages}
         current_user={@current_user}
       />
     """
