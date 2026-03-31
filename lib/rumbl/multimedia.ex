@@ -134,12 +134,7 @@ defmodule Rumbl.Multimedia do
   end
 
   def annotate_video(%Accounts.User{id: user_id}, video_id, attrs) do
-    %Annotation{video_id: video_id, user_id: user_id}
-
-    |> Annotation.changeset(attrs)
-    |> Ecto.Changeset.put_change(:user_id, user_id)
-    |> Ecto.Changeset.put_change(:video_id, video_id)
-    |> Repo.insert()
+    insert_annotation(user_id, video_id, attrs)
   end
 
   def list_annotations(%Video{} = video) do
@@ -149,5 +144,14 @@ defmodule Rumbl.Multimedia do
       limit: 500,
       preload: [:user]
     )
+  end
+
+  defp insert_annotation(user_id, video_id, attrs) do
+    %Annotation{}
+
+    |> Annotation.changeset(attrs)
+    |> Ecto.Changeset.put_change(:user_id, user_id)
+    |> Ecto.Changeset.put_change(:video_id, video_id)
+    |> Repo.insert()
   end
 end

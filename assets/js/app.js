@@ -43,16 +43,18 @@ const Hooks = {
       const submitBtn = document.getElementById("msg-submit")
       const input = document.getElementById("msg-input")
 
-      submitBtn.addEventListener("click", () => {
-        const currentTime = Player.getCurrentTime()
-        const messageBody = input.value
+      if (submitBtn){
+        submitBtn.addEventListener("click", () => {
+          const currentTime = Player.getCurrentTime()
+          const messageBody = input.value
 
-        this.pushEvent("new_annotation", {
-          body: messageBody,
-          at: currentTime
+          this.pushEvent("new_annotation", {
+            body: messageBody,
+            at: currentTime
+          })
+          input.value = ""
         })
-        input.value = ""
-      })
+      }
     },
     destroyed(){
       Player.destroy()

@@ -4,6 +4,9 @@ defmodule RumblWeb.WatchHTML do
   embed_templates "watch_html/*"
 
   attr :video, Rumbl.Multimedia.Video, required: true
+  attr :current_user, :any, default: nil
+  attr :messages, :list, required: true
+
   def show(assigns)
 
   def player_id(video) do

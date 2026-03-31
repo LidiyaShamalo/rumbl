@@ -18,15 +18,19 @@
   <div class="w-full md:flex-1 p-4 border-t md:border-t-0 md:border-l border-[#eaeaea]">
     <h3 class="text-xl mb-2">Annotations</h3>
 
-    <div id="msg-container" class="h-64 overflow-y-auto mb-4 bg-base-200 p-2 rounded" ph-update="append">
-      <div :for={msg <- @messages} class="mb-2 border-b border-gray-100">
-        <span class="font-bold text-sm">[{msg.at}ms]</span>
-        <span class="text-blue-600 font-semibold">{msg.user.data.username}</span> 
-        <p>{msg.body}</p>
+    <div id="msg-container" class="h-64 overflow-y-auto mb-4 bg-base-200 p-2 rounded" phx-update="append">
+      <div 
+        :for={msg <- @messages}
+        id={"msg-#{msg.id}"}
+        class="mb-2 border-b border-gray-100"
+      >
+          <span class="font-bold text-sm">[{msg.at}ms]</span>
+          <span class="text-blue-600 font-semibold">{msg.user.username}</span> 
+          <p>{msg.body}</p>
       </div>
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div :if={@current_user} class="flex flex-col gap-2">
       <textarea
         id="msg-input"
         rows="3"
@@ -41,6 +45,9 @@
       >
         Post
       </button>
+    </div>
+    <div :if={!@current_user} class="p-4 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+      Пожалуйста, <.link href={~p"/users/new"} class="font-bold underline">зарегистрируйтесь</.link>, чтобы комментировать.
     </div>
   </div>
 </div>

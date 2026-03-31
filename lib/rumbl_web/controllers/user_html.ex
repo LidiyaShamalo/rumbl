@@ -8,5 +8,6 @@ defmodule RumblWeb.UserHTML do
     |> Enum.at(0)
   end
 
+  
   embed_templates "user_html/*"
 end

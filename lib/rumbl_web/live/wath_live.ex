@@ -1,27 +1,35 @@
 defmodule RumblWeb.WatchLive do
+
   use RumblWeb, :live_view
 
   alias Rumbl.Accounts
   alias Rumbl.Multimedia
   alias RumblWeb.WatchHTML
 
-  def mount(%{"id" => id}, session, socket) do
+  def mount(%{"id" => id_with_slug}, session, socket) do
 
     user_id = session["user_id"]
     current_user = if user_id, do: Accounts.get_user(user_id), else: nil
 
-    video = Multimedia.get_video!(id)
-    topic = "video:#{id}"
+    video = Multimedia.get_video!(id_with_slug)
+    topic = "video:#{video.id}"
 
     if connected?(socket) do
       RumblWeb.Endpoint.subscribe(topic)
+      IO.puts "ПОДПИСКА ОФОРМЛЕНА НА ТОПИК: #{topic}"
     end
+
+      annotations =
+        video
+
+        |> Multimedia.list_annotations()
+        |> Enum.map(&RumblWeb.AnnotationJSON.data/1)
 
     {:ok,
       socket
       |> assign(:video, video)
       |> assign(:topic, topic)
-      |> assign(:messages, [])
+      |> assign(:messages, annotations)#[])
       |> assign(:current_user, current_user)
     }
   end
@@ -31,32 +39,53 @@ defmodule RumblWeb.WatchLive do
     IO.inspect(body, label: "Текст сообщения")
     IO.inspect(at, label: "Время в видео (мс)")
 
-    case Multimedia.annotate_video(socket.assigns.current_user, socket.assigns.video.id, %{body: body, at: at}) do
-      {:ok, annotation} ->
-        annotation = Rumbl.Repo.preload(annotation, :user)
-        RumblWeb.Endpoint.broadcast!(socket.assigns.topic, "new_annotation", %{
-          id: annotation.id,
-          user: RumblWeb.UserJSON.show(%{user: socket.assigns.current_user}),
-          body: annotation.body,
-          at: annotation.at
-      })
-          # socket.assigns.topic, "new_annotation", annotation)
-        {:noreply, socket}
+    if socket.assigns.current_user do
+      case Multimedia.annotate_video(socket.assigns.current_user, socket.assigns.video.id, %{body: body, at: at}) do
+        {:ok, annotation} ->
+          annotation = Rumbl.Repo.preload(annotation, :user)
 
-      {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, "Не удалось сохранить комментарий")}
+          RumblWeb.Endpoint.broadcast!(socket.assigns.topic, "new_annotation", %{
+            id: annotation.id,
+            user: RumblWeb.UserJSON.data_show(socket.assigns.current_user),
+            body: annotation.body,
+            at: annotation.at
+        })
+            # socket.assigns.topic, "new_annotation", annotation)
+          {:noreply, socket}
+
+        {:error, _changeset} ->
+          {:noreply, put_flash(socket, :error, "Не удалось сохранить комментарий")}
+      end
+    else
+      {:noreply, put_flash(socket, :error, "Войдите в систему, чтобы оставить комментарий")}
     end
+
+
   end
 
-  def handle_info(%{event: "new_annotation", payload: msg}, socket) do
+  def handle_params(_params, _uri, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_info(%Phoenix.Socket.Broadcast{event: "new_annotation", payload: msg}, socket) do
   # Добавляем новое сообщение в начало списка
-  updated_messages = [msg | socket.assigns.messages]
-  {:noreply, assign(socket, messages: updated_messages)}
+  #updated_messages = [msg | socket.assigns.messages]
+  IO.puts "ПОЛУЧЕНО ЧЕРЕЗ BROADCAST"
+  {:noreply, assign(socket, messages: [msg])}
+end
+
+def handle_info(%{event: "new_annotation", payload: msg}, socket) do
+  IO.puts "ПОЛУЧЕНО НАПРЯМУЮ"
+  {:noreply, assign(socket, messages: [msg])}
 end
 
   def render(assigns) do
     ~H"""
-      <WatchHTML.show video={@video} messages={@messages}/>
+      <WatchHTML.show
+        video={@video}
+        messages={@messages}
+        current_user={@current_user}
+      />
     """
   end
 end
