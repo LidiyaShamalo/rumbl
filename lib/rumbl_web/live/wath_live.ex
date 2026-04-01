@@ -60,12 +60,29 @@ defmodule RumblWeb.WatchLive do
   end
 
   def handle_event("player_tick", %{"at" => at}, socket) do
+    IO.puts "--- TICK AT: #{at} ---"
     annotations = Multimedia.list_annotations_at(socket.assigns.video, at)
+    if annotations != [], do: IO.puts "НАЙДЕНО: #{length(annotations)}"
     socket = Enum.reduce(annotations, socket, fn ann, acc ->
       stream_insert(acc, :messages, ann)
   end)
 
   {:noreply, socket}
+end
+
+def handle_event("seek", %{"at" => at}, socket) do
+  socket =
+    socket
+
+    |> stream(:messages, [], reset: true)
+    |> push_event("seek", %{at: at})
+
+  {:noreply, socket}
+end
+
+def handle_event("player_rewind", %{"at" => at}, socket) do
+  socket = stream(socket, :messages, [], reset: true)
+  handle_event("player_tick", %{"at" => at}, socket)
 end
 
   def handle_params(_params, _uri, socket) do

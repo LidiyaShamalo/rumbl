@@ -32,8 +32,8 @@ const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute
 const Hooks = {
   VideoPlayer: {
     mounted() {
+      this.lastTime = 0
       const videoId = this.el.dataset.playerId
-
       const innerDomId = "video-placeholder"
 
       Player.init(innerDomId, videoId, (event) => {
@@ -61,13 +61,20 @@ const Hooks = {
 
     scheduleMessages() {
       this.scheduleTimer = setTimeout(() => {
-        if (typeof Player.getCurrentTime == "function" && this.isConnected()) {
-          const currentTime = Math.floor(Player.getCurrentTime()) 
 
-          this.pushEvent("player_tick", {at: currentTime})
+        if (typeof Player.getCurrentTime === "function") {
+          const currentTime = Math.floor(Player.getCurrentTime());
+
+          if (Math.abs(currentTime - this.lastTime) > 1000){
+            this.pushEvent("player_rewind", {at: currentTime});
+          } else {
+            this.pushEvent("player_tick", {at: currentTime});
+          }
+
+          this.lastTime = currentTime;
         }
-        
-        this.scheduleMessages()
+        this.scheduleMessages();
+          //
       }, 1000)
     },
 
