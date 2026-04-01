@@ -6,6 +6,7 @@ defmodule RumblWeb.WatchHTML do
   attr :video, Rumbl.Multimedia.Video, required: true
   attr :current_user, :any, default: nil
   attr :messages, :list, required: true
+  attr :user_list, :list, default: []
 
   def show(assigns)
 

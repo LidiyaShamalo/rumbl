@@ -41,14 +41,24 @@
       </div>
     </div>
 
-    <div :if={@current_user} class="flex flex-col gap-2">
+    <div :if={@current_user} class="flex flex-row gap-2 items-start">
       <textarea
         id="msg-input"
         rows="3"
         placeholder="Comment..."
-        class="textarea textarea-bordered"
+        class="textarea textarea-bordered flex-1"
       ></textarea>
 
+      <div class="user-online w-32 p-2 bg-base-100 rounded border border-[#eaeaea] h-24 overflow-y-auto">
+        <h3 class="text-xs font-bold uppercase text-gray-500 mb-1">Online:</h3>
+        <ul class="text-sm">
+          <li :for={username <- @user_list} class="flex items-center gap-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full shrink-0"></span>
+            {username}
+          </li>
+        </ul>
+      </div>
+    </div>
       <button
         id="msg-submit"
         class="btn btn-primary w-full"
@@ -56,7 +66,7 @@
       >
         Post
       </button>
-    </div>
+    
     <div :if={!@current_user} class="p-4 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
       Пожалуйста, <.link href={~p"/users/new"} class="font-bold underline">зарегистрируйтесь</.link>, чтобы комментировать.
     </div>

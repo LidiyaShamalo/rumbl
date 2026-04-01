@@ -14,25 +14,23 @@ defmodule RumblWeb.WatchLive do
     video = Multimedia.get_video!(id_with_slug)
     topic = "video:#{video.id}"
 
-    if connected?(socket) do
+    if connected?(socket)  && current_user do
       RumblWeb.Endpoint.subscribe(topic)
       IO.puts "ПОДПИСКА ОФОРМЛЕНА НА ТОПИК: #{topic}"
+
+      {:ok, _} = RumblWeb.Presence.track(self(), topic, current_user.id, %{
+        username: current_user.username,
+        online_at: inspect(System.system_time(:second))
+      })
     end
-
-      annotations =
-        video
-
-        |> Multimedia.list_annotations()
-        |> Rumbl.Repo.preload(:user)
-        |> Enum.map(&RumblWeb.AnnotationJSON.data/1)
 
     {:ok,
       socket
       |> assign(:video, video)
       |> assign(:topic, topic)
       |> assign(:current_user, current_user)
+      |> assign(:user_list, [])
       |> stream(:messages, [])
-
     }
   end
 
@@ -92,9 +90,19 @@ end
   end
 
   def handle_info(%Phoenix.Socket.Broadcast{event: "new_annotation", payload: msg}, socket) do
-  IO.puts "ПОЛУЧЕНО ЧЕРЕЗ BROADCAST"
-  {:noreply, socket} #stream_insert(socket, :messages, msg)} #assign(socket, messages: [msg])}
-end
+    IO.puts "ПОЛУЧЕНО ЧЕРЕЗ BROADCAST"
+    {:noreply, socket}
+  end
+
+  # Когда состав участников меняется
+  def handle_info(%{event: "presence_diff"}, socket) do
+    users =
+      RumblWeb.Presence.list(socket.assigns.topic) #!!!!!!!!!!!!!
+
+      |> Enum.map(fn {_id, %{metas: [%{username: username} | _]}} -> username end)
+
+    {:noreply, assign(socket, :user_list, users)}
+  end
 
   def render(assigns) do
     ~H"""
