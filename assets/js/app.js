@@ -65,7 +65,7 @@ const Hooks = {
         if (typeof Player.getCurrentTime === "function") {
           const currentTime = Math.floor(Player.getCurrentTime());
 
-          if (Math.abs(currentTime - this.lastTime) > 1000){
+          if (Math.abs(currentTime - this.lastTime) > 2000){
             this.pushEvent("player_rewind", {at: currentTime});
           } else {
             this.pushEvent("player_tick", {at: currentTime});

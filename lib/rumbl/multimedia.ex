@@ -167,4 +167,14 @@ defmodule Rumbl.Multimedia do
       preload: [:user]
     )
   end
+
+  def list_annotations_past(video, at) do
+    end_at = at + 1000
+    Repo.all(
+      from a in assoc(video, :annotations),
+        where: a.at <= ^at and a.at < ^end_at, # Берем всё, что было ДО текущего момента
+        order_by: [asc: a.at, asc: a.id],
+        preload: [:user]
+    )
+  end
 end
