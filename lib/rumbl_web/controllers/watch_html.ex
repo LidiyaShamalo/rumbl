@@ -23,4 +23,11 @@ defmodule RumblWeb.WatchHTML do
     end
   end
 
+  def format_time(at) do
+    at
+    |> div(1000)
+    |>Time.from_seconds_after_midnight()
+    |> Calendar.strftime("%M:%S")
+  end
+
 end

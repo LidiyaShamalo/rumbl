@@ -38,6 +38,7 @@ const Hooks = {
 
       Player.init(innerDomId, videoId, (event) => {
         console.log("Youtube Player is ready", event)
+        this.scheduleMessages()
       })
 
       const submitBtn = document.getElementById("msg-submit")
@@ -45,19 +46,51 @@ const Hooks = {
 
       if (submitBtn){
         submitBtn.addEventListener("click", () => {
-          const currentTime = Player.getCurrentTime()
-          const messageBody = input.value
 
           this.pushEvent("new_annotation", {
-            body: messageBody,
-            at: currentTime
+            body: input.value, 
+            at: Math.floor(Player.getCurrentTime()) 
           })
           input.value = ""
         })
       }
+      this.handleEvent("seek", ({at}) => {
+        Player.seekTo(at)
+      })
     },
+
+    scheduleMessages() {
+      this.scheduleTimer = setTimeout(() => {
+        if (typeof Player.getCurrentTime == "function" && this.isConnected()) {
+          const currentTime = Math.floor(Player.getCurrentTime()) 
+
+          this.pushEvent("player_tick", {at: currentTime})
+        }
+        
+        this.scheduleMessages()
+      }, 1000)
+    },
+
+    isConnected(){
+      return this.pushEvent ? true : false
+    },
+
     destroyed(){
+      clearTimeout(this.scheduleTimer)
       Player.destroy()
+    }
+  },
+
+    ScrollDown: {
+    mounted() {
+      this.scrollToBottom()
+    },
+    updated() {
+      this.scrollToBottom()
+    },
+    scrollToBottom() {
+      // Прокручиваем элемент вниз
+      this.el.scrollTop = this.el.scrollHeight
     }
   }
 }

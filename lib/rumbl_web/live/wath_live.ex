@@ -23,6 +23,7 @@ defmodule RumblWeb.WatchLive do
         video
 
         |> Multimedia.list_annotations()
+        |> Rumbl.Repo.preload(:user)
         |> Enum.map(&RumblWeb.AnnotationJSON.data/1)
 
     {:ok,
@@ -30,16 +31,12 @@ defmodule RumblWeb.WatchLive do
       |> assign(:video, video)
       |> assign(:topic, topic)
       |> assign(:current_user, current_user)
-      |> stream(:messages, annotations)
+      |> stream(:messages, [])
 
     }
   end
 
   def handle_event("new_annotation", %{"body" => body, "at" => at}, socket) do
-    IO.puts "--- МЫ ПОЙМАЛИ СОБЫТИЕ! ---"
-    IO.inspect(body, label: "Текст сообщения")
-    IO.inspect(at, label: "Время в видео (мс)")
-
     if socket.assigns.current_user do
       case Multimedia.annotate_video(socket.assigns.current_user, socket.assigns.video.id, %{body: body, at: at}) do
         {:ok, annotation} ->
@@ -52,7 +49,7 @@ defmodule RumblWeb.WatchLive do
             at: annotation.at
         })
             # socket.assigns.topic, "new_annotation", annotation)
-          {:noreply, socket}
+          {:noreply, stream_insert(socket, :messages, annotation)} #socket}
 
         {:error, _changeset} ->
           {:noreply, put_flash(socket, :error, "Не удалось сохранить комментарий")}
@@ -60,24 +57,24 @@ defmodule RumblWeb.WatchLive do
     else
       {:noreply, put_flash(socket, :error, "Войдите в систему, чтобы оставить комментарий")}
     end
-
-
   end
+
+  def handle_event("player_tick", %{"at" => at}, socket) do
+    annotations = Multimedia.list_annotations_at(socket.assigns.video, at)
+    socket = Enum.reduce(annotations, socket, fn ann, acc ->
+      stream_insert(acc, :messages, ann)
+  end)
+
+  {:noreply, socket}
+end
 
   def handle_params(_params, _uri, socket) do
     {:noreply, socket}
   end
 
   def handle_info(%Phoenix.Socket.Broadcast{event: "new_annotation", payload: msg}, socket) do
-  # Добавляем новое сообщение в начало списка
-  #updated_messages = [msg | socket.assigns.messages]
   IO.puts "ПОЛУЧЕНО ЧЕРЕЗ BROADCAST"
-  {:noreply, assign(socket, messages: [msg])}
-end
-
-def handle_info(%{event: "new_annotation", payload: msg}, socket) do
-  IO.puts "ПОЛУЧЕНО НАПРЯМУЮ"
-  {:noreply, stream_insert(socket, :messages, msg)}
+  {:noreply, socket} #stream_insert(socket, :messages, msg)} #assign(socket, messages: [msg])}
 end
 
   def render(assigns) do
@@ -89,4 +86,5 @@ end
       />
     """
   end
+
 end
