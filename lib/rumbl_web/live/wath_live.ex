@@ -24,12 +24,17 @@ defmodule RumblWeb.WatchLive do
       })
     end
 
+    initial_users =
+    if connected?(socket),
+      do: list_online_users(topic),
+      else: []
+
     {:ok,
       socket
       |> assign(:video, video)
       |> assign(:topic, topic)
       |> assign(:current_user, current_user)
-      |> assign(:user_list, [])
+      |> assign(:user_list, initial_users)
       |> stream(:messages, [])
     }
   end
@@ -59,14 +64,12 @@ defmodule RumblWeb.WatchLive do
 
   # стандартный
   def handle_event("player_tick", %{"at" => at}, socket) do
-    IO.puts "--- TICK AT: #{at} ---"
     annotations = Multimedia.list_annotations_at(socket.assigns.video, at)
-    if annotations != [], do: IO.puts "НАЙДЕНО: #{length(annotations)}"
     socket = Enum.reduce(annotations, socket, fn ann, acc ->
       stream_insert(acc, :messages, ann)
-  end)
+    end)
 
-  {:noreply, socket}
+    {:noreply, socket}
 end
 
 def handle_event("seek", %{"at" => at}, socket) do
@@ -96,10 +99,9 @@ end
 
   # Когда состав участников меняется
   def handle_info(%{event: "presence_diff"}, socket) do
-    users =
-      RumblWeb.Presence.list(socket.assigns.topic) #!!!!!!!!!!!!!
+    users = list_online_users(socket.assigns.topic) #!!!!!!!!!!!!!
 
-      |> Enum.map(fn {_id, %{metas: [%{username: username} | _]}} -> username end)
+    # |> Enum.map(fn {_id, %{metas: [%{username: username} | _]}} -> username end)
 
     {:noreply, assign(socket, :user_list, users)}
   end
@@ -110,8 +112,16 @@ end
         video={@video}
         messages={@streams.messages}
         current_user={@current_user}
+        user_list={@user_list}
       />
     """
   end
 
+
+  defp list_online_users(topic) do
+    RumblWeb.Presence.list(topic)
+    |> Enum.map(fn {_id, %{metas: [%{username: username} | _]}} ->
+      username
+    end)
+  end
 end
