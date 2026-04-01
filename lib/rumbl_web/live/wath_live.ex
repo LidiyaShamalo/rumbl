@@ -64,6 +64,13 @@ defmodule RumblWeb.WatchLive do
 
   # стандартный
   def handle_event("player_tick", %{"at" => at}, socket) do
+    if connected?(socket) && socket.assigns.current_user do
+      RumblWeb.Presence.update(self(), socket.assigns.topic, socket.assigns.current_user.id, %{
+        username: socket.assigns.current_user.username,
+        at: at # Сохраняем текущую секунду
+      })
+    end
+
     annotations = Multimedia.list_annotations_at(socket.assigns.video, at)
     socket = Enum.reduce(annotations, socket, fn ann, acc ->
       stream_insert(acc, :messages, ann)
@@ -120,8 +127,11 @@ end
 
   defp list_online_users(topic) do
     RumblWeb.Presence.list(topic)
-    |> Enum.map(fn {_id, %{metas: [%{username: username} | _]}} ->
-      username
+    |> Enum.map(fn {_id, %{metas: [meta | _]}} ->
+      %{
+        username: meta.username,
+        at: Map.get(meta, :at, 0)
+      }
     end)
   end
 end
