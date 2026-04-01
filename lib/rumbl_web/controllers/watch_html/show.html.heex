@@ -22,11 +22,15 @@
       <div 
         :for={{dom_id, msg} <- @messages}
         id={dom_id}
-        class="mb-2 border-b border-gray-100"
+        class="mb-2"
       >
-          <span class="font-bold text-sm">[{msg.at}ms]</span>
-          <span class="text-blue-600 font-semibold">{msg.user.username}</span> 
-          <p>{msg.body}</p>
+          <!--span class="font-bold text-sm">[{msg.at}ms]</!--span -->
+          <span class="underline decoration-1 underline-offset-6 text-blue-600 p-2">
+            {msg.user.username}:
+          </span> 
+          <span class="text-gray-400">
+            {msg.body}
+          </span>
       </div>
     </div>
 
