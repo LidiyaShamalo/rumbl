@@ -92,7 +92,7 @@ end
     {:noreply, socket}
   end
 
-  def handle_info(%Phoenix.Socket.Broadcast{event: "new_annotation", payload: msg}, socket) do
+  def handle_info(%Phoenix.Socket.Broadcast{event: "new_annotation"}, socket) do
     IO.puts "ПОЛУЧЕНО ЧЕРЕЗ BROADCAST"
     {:noreply, socket}
   end
