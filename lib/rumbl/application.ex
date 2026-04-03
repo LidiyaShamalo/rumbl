@@ -8,7 +8,7 @@ defmodule Rumbl.Application do
       Rumbl.Repo,
       {DNSCluster, query: Application.get_env(:rumbl, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Rumbl.PubSub},
-      {InfoSys.Counter, 5},
+      {InfoSys.Supervisor, name: InfoSys.Supervisor},
       RumblWeb.Presence,
       RumblWeb.Endpoint
     ]
