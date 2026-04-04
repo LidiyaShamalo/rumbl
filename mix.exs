@@ -66,7 +66,8 @@ defmodule Rumbl.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:pbkdf2_elixir, "~> 2.0"}
+      {:pbkdf2_elixir, "~> 2.0"},
+      {:sweet_xml, "~> 0.6.5"}
     ]
   end
 
