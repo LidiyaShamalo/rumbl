@@ -7,6 +7,9 @@ defmodule InfoSys.Supervisor do
 
   def init(:ok) do
     children = [
+      InfoSys.Cache,
+      {Task.Supervisor, name: InfoSys.TaskSupervisor},
+      
       Supervisor.child_spec({InfoSys.Counter, 15}, id: :long),
       Supervisor.child_spec({InfoSys.Counter, 5}, id: :short),
       Supervisor.child_spec({InfoSys.Counter, 10}, id: :medium),
