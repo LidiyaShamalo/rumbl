@@ -90,3 +90,11 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+wolfram_app_id =
+  System.get_env("Y43323LU43") ||
+  raise """
+    переменная окружения WOLFRAM_APP_ID отсутствует.
+  """
+
+  config :info_sys, :wolfram, app_id: wolfram_app_id
